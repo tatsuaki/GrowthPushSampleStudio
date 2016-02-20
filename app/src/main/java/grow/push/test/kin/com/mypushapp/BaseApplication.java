@@ -8,6 +8,8 @@ import com.adjust.sdk.Adjust;
 import com.adjust.sdk.AdjustConfig;
 import com.adjust.sdk.AdjustEvent;
 import com.adjust.sdk.LogLevel;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;
 
 import grow.push.test.kin.com.mypushapp.helper.AdjustHelper;
 
@@ -16,11 +18,24 @@ import grow.push.test.kin.com.mypushapp.helper.AdjustHelper;
  * MyApps.
  */
 public class BaseApplication extends Application {
-
+    private Tracker mTracker;
     @Override
     public void onCreate() {
         super.onCreate();
-
         AdjustHelper adjustHelper = new AdjustHelper(this);
+    }
+
+    /**
+     * Gets the default {@link Tracker} for this {@link Application}.
+     * @return tracker
+     */
+    synchronized public Tracker getDefaultTracker() {
+        if (mTracker == null) {
+            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+            // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
+            mTracker = analytics.newTracker("UA-46265087-4");
+            mTracker.enableAdvertisingIdCollection(true);
+        }
+        return mTracker;
     }
 }

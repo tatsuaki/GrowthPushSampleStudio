@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.growthbeat.Growthbeat;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.tapjoy.TJActionRequest;
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private final String TAG = "MainActivity";
 
     public GrowthHelper mGrowthHelper = null;
+    private Tracker mTracker;
 
     public Button button1 = null;
     public Button button2 = null;
@@ -87,6 +90,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         mGrowthHelper = new GrowthHelper(this, getApplicationContext());
         connectToTapjoy();
         settingView();
+
+        BaseApplication application = (BaseApplication) getApplication();
+        mTracker = application.getDefaultTracker();
     }
 
     private void settingView() {
@@ -239,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 TapjoiConnectSuccess();
                 //  Tapjoy.trackPurchase(null, null, null, null);
             }
+
             @Override
             public void onConnectFailure() {
                 onConnectFail();
@@ -384,16 +391,32 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         Log.e("Tapjoi", "connect call failed");
     }
 
+    public void onPause() {
+        super.onPause();
+        mTracker.setScreenName("onPause");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+    }
+
+    public void onResume() {
+        super.onResume();
+        mTracker.setScreenName("onResume");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+    }
+
     public void onStart() {
         super.onStart();
         Growthbeat.getInstance().start();
         Tapjoy.onActivityStart(this);
+        mTracker.setScreenName("onStart");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     public void onStop() {
         Tapjoy.onActivityStop(this);
         super.onStop();
         Growthbeat.getInstance().stop();
+        mTracker.setScreenName("onStop");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     public void onDestory() {
@@ -423,11 +446,32 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             // button2  36rz26
             AdjustHelper.sendEvent("36rz26");
+
+            // Get tracker.
+            if (null == mTracker) {
+                BaseApplication application = (BaseApplication) getApplication();
+                mTracker = application.getDefaultTracker();
+            }
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("category")
+                    .setAction("Click")
+                    .setLabel("button2")
+                    .build());
         } else if (view == button3) {
             mGrowthHelper.GrowthTrackEvent("button3", getNowDate());
             // ckicks   rtb54x
             AdjustHelper.sendEvent("rtb54x");
-
+            // Get tracker.
+            if (null == mTracker) {
+                BaseApplication application = (BaseApplication) getApplication();
+                mTracker = application.getDefaultTracker();
+                mTracker.enableAdvertisingIdCollection(true);
+            }
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("category")
+                    .setAction("Click")
+                    .setLabel("button3")
+                    .build());
         } else if (view == button4) {
             mGrowthHelper.GrowthTrackEvent("button4", getNowDate());
             // endpart  5xm2tv
