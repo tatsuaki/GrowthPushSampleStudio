@@ -37,6 +37,7 @@ dependencies {
     //compile 'com.google.android.gms:play-services:8.3.0'
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
     compile 'com.google.android.gms:play-services-ads:8.4.0'
+    compile 'com.google.android.gms:play-services-analytics:8.4.0'
     compile 'com.growthbeat:growthbeat-android:1.2.6@aar'
     compile files('libs/tapjoyconnectlibrary.jar')
     compile project(':adjust')
