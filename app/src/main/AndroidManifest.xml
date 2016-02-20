@@ -4,6 +4,7 @@
 
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- under API 15 -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <!-- for Growth Push -->
@@ -15,6 +16,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <uses-permission android:name="grow.push.test.kin.com.mypushapp.permission.C2D_MESSAGE" />
     <meta-data android:name="com.google.android.gms.version"
