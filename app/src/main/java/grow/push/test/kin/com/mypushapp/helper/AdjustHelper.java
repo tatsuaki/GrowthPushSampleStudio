@@ -64,15 +64,19 @@ public class AdjustHelper {
         @Override
         public void onActivityResumed(Activity activity){
             Adjust.onResume();
-        };
+        }
+
         @Override
         public void onActivityPaused(Activity activity) {
             Adjust.onPause();
         }
-        public void onActivityDestroyed(Activity activity){};
+        public void onActivityDestroyed(Activity activity){}
+
         public void onActivityCreated(Activity activity, Bundle bundle) {}
-        public void onActivityStarted(Activity activity){};
-        public void onActivityStopped(Activity activity){};
-        public void onActivitySaveInstanceState(Activity activity, Bundle bundle){};
+        public void onActivityStarted(Activity activity){}
+
+        public void onActivityStopped(Activity activity){}
+
+        public void onActivitySaveInstanceState(Activity activity, Bundle bundle){}
     }
 }

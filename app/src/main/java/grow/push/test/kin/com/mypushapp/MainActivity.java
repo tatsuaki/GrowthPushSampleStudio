@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             e.printStackTrace();
         } catch (RemoteException e) {
             e.printStackTrace();
-        };
+        }
         /* 課金処理 */
         if (!mHelper.handleActivityResult(requestCode, resultCode, data)) {
             super.onActivityResult(requestCode, resultCode, data);
