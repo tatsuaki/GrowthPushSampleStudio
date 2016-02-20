@@ -17,10 +17,18 @@ import com.adjust.sdk.LogLevel;
 public class AdjustHelper {
     private static final String TAG = "AdjustHelper";
     private Application mApplication = null;
-//  public String environment = AdjustConfig.ENVIRONMENT_SANDBOX;
+    //  public String environment = AdjustConfig.ENVIRONMENT_SANDBOX;
     public String environment = AdjustConfig.ENVIRONMENT_PRODUCTION;
 
     private final String APP_TOKEN = "6rspygco22o0";
+
+    public static final String BUTTON1 = "xyu40o";
+    public static final String BUTTON2 = "36rz26";
+    public static final String CKICKS = "rtb54x";
+    public static final String ENDPART = "5xm2tv";
+    public static final String FB_LOGIN = "7pqpw9";
+    public static final String FB_LOGOUT = "kvj3k8";
+    public static final String LANTH = "5qcwso";
 
     public AdjustHelper(Application application) {
         mApplication = application;
@@ -32,12 +40,12 @@ public class AdjustHelper {
         AdjustConfig config = new AdjustConfig(mApplication, APP_TOKEN, environment);
         Adjust.onCreate(config);
 
-    //  config.setLogLevel(LogLevel.VERBOSE);   // enable all logging
+        //  config.setLogLevel(LogLevel.VERBOSE);   // enable all logging
         config.setLogLevel(LogLevel.DEBUG);     // enable more logging
-    //  config.setLogLevel(LogLevel.INFO);      // the default
-    //  config.setLogLevel(LogLevel.WARN);      // disable info logging
-    //  config.setLogLevel(LogLevel.ERROR);     // disable warnings as well
-    //  config.setLogLevel(LogLevel.ASSERT);    // disable errors as well
+        //  config.setLogLevel(LogLevel.INFO);      // the default
+        //  config.setLogLevel(LogLevel.WARN);      // disable info logging
+        //  config.setLogLevel(LogLevel.ERROR);     // disable warnings as well
+        //  config.setLogLevel(LogLevel.ASSERT);    // disable errors as well
 
         mApplication.registerActivityLifecycleCallbacks(new AdjustLifecycleCallbacks());
 

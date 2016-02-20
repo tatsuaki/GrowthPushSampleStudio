@@ -11,6 +11,16 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
+import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.growthbeat.Growthbeat;
@@ -46,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     public GrowthHelper mGrowthHelper = null;
     private Tracker mTracker;
+    CallbackManager callbackManager;
+    AccessTokenTracker accessTokenTracker;
 
     public Button button1 = null;
     public Button button2 = null;
@@ -68,6 +80,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //初期化
+        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_main);
 
         mHelper = new IabHelper(this, Configs.base64EncodedPublicKey);
@@ -93,6 +108,45 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         BaseApplication application = (BaseApplication) getApplication();
         mTracker = application.getDefaultTracker();
+
+        //ログイン後のコールバック設定
+        callbackManager = CallbackManager.Factory.create();
+        LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
+//    //  LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {...});
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.d(TAG, "FB onSuccess");
+                AdjustHelper.sendEvent(AdjustHelper.FB_LOGIN);
+                if (null != mGrowthHelper) {
+                    mGrowthHelper.GrowthTrackEvent("FB LOGIN", getNowDate());
+                }
+            }
+            @Override
+            public void onCancel() {
+                Log.d(TAG, "FB onCancel");
+                // App code
+            }
+            @Override
+            public void onError(FacebookException exception) {
+                Log.d(TAG, "FB onError");
+                // App code
+            }
+      });
+//        accessTokenTracker = new AccessTokenTracker() {
+//            @Override
+//            protected void onCurrentAccessTokenChanged(
+//                    AccessToken oldAccessToken, AccessToken currentAccessToken) {
+//                mGrowthHelper.GrowthTrackEvent("FB TOKEN", currentAccessToken.getUserId());
+//                // Set the access token using
+//                // currentAccessToken when it's loaded or set.
+//            }
+//        };
+        // If the access token is available already assign it.
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        String userId = accessToken.getUserId();
+        Log.d(TAG, "FB userId = " + userId);
+        mGrowthHelper.GrowthTrackEvent("FB userId", userId);
     }
 
     private void settingView() {
@@ -205,11 +259,23 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         };
         /* 課金処理 */
         if (!mHelper.handleActivityResult(requestCode, resultCode, data)) {
-              super.onActivityResult(requestCode, resultCode, data);
+            super.onActivityResult(requestCode, resultCode, data);
+            callbackManager.onActivityResult(requestCode, resultCode, data);
         } else {
             Log.d(TAG, "onActivityResult handled by IABUtil.");
         }
         Log.d(TAG, "onActivity Result Code : " + resultCode); // -1
+
+        /**
+         * Login:64206
+         * Share:64207
+         * Message:64208
+         * Like:64209
+         * GameRequest:64210
+         * AppGroupCreate:64211
+         * AppGroupJoin:64212
+         * AppInvite:64213
+         */
     }
 
     void complain(String message) {
@@ -395,12 +461,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         super.onPause();
         mTracker.setScreenName("onPause");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
+        AppEventsLogger.deactivateApp(this);
     }
 
     public void onResume() {
         super.onResume();
         mTracker.setScreenName("onResume");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
+        AppEventsLogger.activateApp(this);
     }
 
     public void onStart() {
@@ -421,6 +491,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     public void onDestory() {
         super.onDestroy();
+        accessTokenTracker.stopTracking();
         GrowthAnalytics.getInstance().close();
     }
 
@@ -435,8 +506,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         if (view == button1) {
             mGrowthHelper.GrowthTrackEvent("button1", getNowDate());
 
-            // button1  xyu40o
-            AdjustHelper.sendEvent("xyu40o");
+            AdjustHelper.sendEvent(AdjustHelper.BUTTON1);
 
             // 課金リクエスト開始
             mHelper.launchPurchaseFlow(this, Configs.product01, IabHelper.ITEM_TYPE_INAPP, RC_REQUEST, mPurchaseFinishedListener, null);
@@ -449,8 +519,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             mGrowthHelper.GrowthSendTag("purchase", getNowDate());
             mGrowthHelper.GrowPurchase(345, "categorys", "itemID");
 
-            // button2  36rz26
-            AdjustHelper.sendEvent("36rz26");
+            AdjustHelper.sendEvent(AdjustHelper.BUTTON2);
 
             // Get tracker.
             if (null == mTracker) {
@@ -464,8 +533,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     .build());
         } else if (view == button3) {
             mGrowthHelper.GrowthTrackEvent("button3", getNowDate());
-            // ckicks   rtb54x
-            AdjustHelper.sendEvent("rtb54x");
+             AdjustHelper.sendEvent(AdjustHelper.CKICKS);
             // Get tracker.
             if (null == mTracker) {
                 BaseApplication application = (BaseApplication) getApplication();
@@ -479,8 +547,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     .build());
         } else if (view == button4) {
             mGrowthHelper.GrowthTrackEvent("button4", getNowDate());
-            // endpart  5xm2tv
-            AdjustHelper.sendEvent("5xm2tv");
+            AdjustHelper.sendEvent(AdjustHelper.ENDPART);
         } else if (view == button5) {
             mGrowthHelper.GrowthTrackEvent("button5", getNowDate());
         } else if (view == tapJoy1) {
