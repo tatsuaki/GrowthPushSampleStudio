@@ -440,6 +440,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             // 課金リクエスト開始
             mHelper.launchPurchaseFlow(this, Configs.product01, IabHelper.ITEM_TYPE_INAPP, RC_REQUEST, mPurchaseFinishedListener, null);
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("Purchase")
+                    .setAction("Click")
+                    .setLabel("button1")
+                    .build());
         } else if (view == button2) {
             mGrowthHelper.GrowthSendTag("purchase", getNowDate());
             mGrowthHelper.GrowPurchase(345, "categorys", "itemID");

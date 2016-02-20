@@ -1,0 +1,45 @@
+{
+  "project_info": {
+    "project_id": "adroit-particle-819",
+    "project_number": "452173490404",
+    "name": "test-puriga0108"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:452173490404:android:cca1f31131790dfd",
+        "client_id": "android:grow.push.test.kin.com.mypushapp",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "grow.push.test.kin.com.mypushapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-46265087-4"
+          }
+        },
+        "cloud_messaging_service": {
+          "status": 2,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 1
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}
