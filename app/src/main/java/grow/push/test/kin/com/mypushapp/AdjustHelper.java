@@ -1,4 +1,4 @@
-package grow.push.test.kin.com.mypushapp.helper;
+package grow.push.test.kin.com.mypushapp;
 
 import android.app.Activity;
 import android.app.Application;

@@ -1,30 +1,40 @@
 package grow.push.test.kin.com.mypushapp;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
-import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
-import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.android.gcm.GCMRegistrar;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.growthbeat.Growthbeat;
 import com.growthbeat.analytics.GrowthAnalytics;
+import com.growthpush.GrowthPush;
 import com.tapjoy.TJActionRequest;
 import com.tapjoy.TJConnectListener;
 import com.tapjoy.TJEarnedCurrencyListener;
@@ -38,6 +48,7 @@ import com.tapjoy.TapjoyConnectFlag;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -48,8 +59,6 @@ import grow.push.test.kin.com.mypushapp.BillingUtil.IabHelper;
 import grow.push.test.kin.com.mypushapp.BillingUtil.IabResult;
 import grow.push.test.kin.com.mypushapp.BillingUtil.Inventory;
 import grow.push.test.kin.com.mypushapp.BillingUtil.Purchase;
-import grow.push.test.kin.com.mypushapp.helper.AdjustHelper;
-import grow.push.test.kin.com.mypushapp.helper.GrowthHelper;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener, TJGetCurrencyBalanceListener, TJPlacementListener {
     private final String TAG = "MainActivity";
@@ -58,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private Tracker mTracker;
     CallbackManager callbackManager;
     AccessTokenTracker accessTokenTracker;
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
 
     public Button button1 = null;
     public Button button2 = null;
@@ -77,10 +87,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private TJPlacement directPlayPlacement;
     private boolean earnedCurrency = false;
 
+    protected static final String SENDER_ID = "470626985372";
+    private GoogleCloudMessaging gcm;
+    private String regId;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+//        createGCM();
+     //   getRegistrationId();
         //初期化
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_main);
@@ -103,7 +120,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         });
 
         mGrowthHelper = new GrowthHelper(this, getApplicationContext());
-        connectToTapjoy();
+        registerReceiver(mHandleMessageReceiver, new IntentFilter(Configs.DISPLAY_MESSAGE_ACTION));
+        Intent intent = new Intent(this, MyRegistrationIntentService.class);
+        startService(intent);
+    //    connectToTapjoy();
         settingView();
 
         BaseApplication application = (BaseApplication) getApplication();
@@ -122,33 +142,105 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     mGrowthHelper.GrowthTrackEvent("FB LOGIN", getNowDate());
                 }
             }
+
             @Override
             public void onCancel() {
                 Log.d(TAG, "FB onCancel");
                 // App code
             }
+
             @Override
             public void onError(FacebookException exception) {
                 Log.d(TAG, "FB onError");
                 // App code
             }
-      });
+        });
+
 //        accessTokenTracker = new AccessTokenTracker() {
 //            @Override
 //            protected void onCurrentAccessTokenChanged(
 //                    AccessToken oldAccessToken, AccessToken currentAccessToken) {
 //                mGrowthHelper.GrowthTrackEvent("FB TOKEN", currentAccessToken.getUserId());
-//                // Set the access token using
-//                // currentAccessToken when it's loaded or set.
 //            }
 //        };
-        // If the access token is available already assign it.
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        String userId = accessToken.getUserId();
-        Log.d(TAG, "FB userId = " + userId);
-        mGrowthHelper.GrowthTrackEvent("FB userId", userId);
+//        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+//        String userId = accessToken.getUserId();
+//        Log.d(TAG, "FB userId = " + userId);
+//        if (null != mGrowthHelper) {
+//            mGrowthHelper.GrowthTrackEvent("FB userId", userId);
+//        }
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+                boolean sentToken = sharedPreferences.getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
+                if (sentToken) {
+                    Log.d(TAG, "onReceive 1 token = " + sentToken);
+                } else {
+                    Log.d(TAG, "onReceive 2");
+                }
+            }
+        };
+        String act = getIntent().getAction();
+        if (act != null && act.equals(Configs.DISPLAY_MESSAGE_ACTION)) {
+            String mes = getIntent().getStringExtra(Configs.EXTRA_MESSAGE);
+            AlertDialog.Builder alertDialog=new AlertDialog.Builder(this);
+            // ダイアログの設定
+            alertDialog.setTitle("titless");          //タイトル
+            alertDialog.setMessage(mes);      //内容
+            alertDialog.setIcon(R.drawable.com_facebook_send_button_icon);   //アイコン設定
+            alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                    //初回表示完了
+                    //  setState(PREFERENCE_BOOTED);
+                }
+            });
+            AlertDialog alert = alertDialog.create();
+            alert.show();
+        }
     }
-
+//    private void getRegistrationId() {
+//        new AsyncTask<Void, Void, Void>() {
+//            @Override
+//            protected Void doInBackground(Void... params) {
+//                if (gcm == null) {
+//                    gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
+//                }
+//                try {
+//                    regId = gcm.register(SENDER_ID);
+//                    Log.v("GCM", "regId is " + regId);
+//                } catch (IOException e) {
+//                    Log.e("GCM", "error " + e.getMessage());
+//                }
+//                return null;
+//            }
+//        }.execute();
+//    }
+//    public void createGCM() {
+//        // check if it's right manifest.
+//    //    GCMRegistrar.checkDevice(this);
+//   //   GCMRegistrar.checkManifest(this);
+//        final String regId = GCMRegistrar.getRegistrationId(this);
+//        Log.e(TAG, "regId=" + regId);
+//        if (regId.equals("")) {
+//            Log.e(TAG, "GCMIntentService.onRegisteredがコールされる。");
+//            // GCMIntentService.onRegisteredがコールされる。
+//            GCMRegistrar.register(this, "317126540441");
+//        } else {
+//            Log.v(TAG, "Already exists " + regId);
+//        }
+//    }
+// ブロードキャストレシーバーの登録
+    private final BroadcastReceiver mHandleMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // 通知を受けた内容を画面のテキストビューに表示
+            String newMessage = intent.getExtras().getString(Configs.EXTRA_MESSAGE);
+            Toast.makeText(getApplicationContext(), newMessage, Toast.LENGTH_SHORT).show();
+        //    mDisplay.append(newMessage + "\n");
+        }
+    };
     private void settingView() {
         button1 = (Button) findViewById(R.id.button1);
         button2 = (Button) findViewById(R.id.button2);
@@ -243,7 +335,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             JSONObject purchaseDataJson = new JSONObject(purchaseData);
             String productId = purchaseDataJson.getString("productId");
             // getSkuDetails
-            ArrayList<String> skuList = new ArrayList<> ();
+            ArrayList<String> skuList = new ArrayList<>();
             skuList.add(productId);
             Bundle querySkus = new Bundle();
             querySkus.putStringArrayList("ITEM_ID_LIST", skuList);
@@ -252,7 +344,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             Tapjoy.trackPurchase(responseList.get(0), purchaseData, dataSignature, null);
         } catch (JSONException e) {
             e.printStackTrace();
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             e.printStackTrace();
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -366,7 +458,24 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 //            }
 //        });
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mTracker.setScreenName("onResume");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
+        AppEventsLogger.activateApp(this);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
+    }
+    public void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        super.onPause();
+        mTracker.setScreenName("onPause");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
+        AppEventsLogger.deactivateApp(this);
+    }
     //================================================================================
     // TapjoyListener Methods
     //================================================================================
@@ -402,7 +511,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     // Tapjoyサーバーへコネクトする途中で問題が生じた際に呼ばれます。
     @Override
     public void onRequestFailure(TJPlacement placement, TJError error) {
-        Log.d("Tapjoi", "onRequestFailure " +  error.message);
+        Log.d("Tapjoi", "onRequestFailure " + error.message);
     }
 
     // コンテンツが表示できるようになった時に呼ばれます。
@@ -457,21 +566,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         Log.e("Tapjoi", "connect call failed");
     }
 
-    public void onPause() {
-        super.onPause();
-        mTracker.setScreenName("onPause");
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
-        AppEventsLogger.deactivateApp(this);
-    }
-
-    public void onResume() {
-        super.onResume();
-        mTracker.setScreenName("onResume");
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-
-        AppEventsLogger.activateApp(this);
-    }
 
     public void onStart() {
         super.onStart();
@@ -491,6 +586,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     public void onDestory() {
         super.onDestroy();
+        unregisterReceiver(mHandleMessageReceiver);
         accessTokenTracker.stopTracking();
         GrowthAnalytics.getInstance().close();
     }
@@ -533,7 +629,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     .build());
         } else if (view == button3) {
             mGrowthHelper.GrowthTrackEvent("button3", getNowDate());
-             AdjustHelper.sendEvent(AdjustHelper.CKICKS);
+            AdjustHelper.sendEvent(AdjustHelper.CKICKS);
             // Get tracker.
             if (null == mTracker) {
                 BaseApplication application = (BaseApplication) getApplication();

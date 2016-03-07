@@ -11,12 +11,14 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
+import com.growthpush.GrowthPush;
 
 import java.util.Set;
 
 public class MyGcmListenerService extends GcmListenerService {
 
     private static final String TAG = "MyGcmListenerService";
+    static int counts = 0;
     /**
      * Called when message is received.
      *
@@ -27,55 +29,57 @@ public class MyGcmListenerService extends GcmListenerService {
     // [START receive_message]
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        Log.i(TAG, "onMessageReceived " + data.toString());
-        Set<String> keys = data.keySet();
-        for (String key : keys) {
-            Log.i(TAG, "key = " + key);
-            Log.e(TAG, "data.getString(key) = " + data.getString(key));
+        Log.d(TAG, "onMessageReceived from = " + from + " data=" + data.toString());
+        String datas = data.getString("growthpush");
+        Log.d(TAG, "datas " + datas);
+        if (null != datas && datas.length() > 0) {
+            System.out.println( "部分一致です" );
+            Intent intent = new Intent();
+            intent.putExtras(data);
+            GrowthPush.getInstance().getReceiveHandler().onReceive(this.getApplicationContext(), intent);
+        } else {
+            System.out.println( "部分一致ではありません" );
+            String message = data.getString("message");
+            Log.d(TAG, "onMessageReceived From: " + from);
+            Log.d(TAG, "onMessageReceived Message: " + message);
+            Log.d(TAG, "sendNotification");
+            sendNotification("my " + message);
         }
-        String message = data.getString("message");
-        Log.d(TAG, "From: " + from);
-        Log.d(TAG, "Message: " + message);
+//        if (from.equals("470626985372")) {
+//            Intent intent = new Intent();
+//            intent.putExtras(data);
+//            GrowthPush.getInstance().getReceiveHandler().onReceive(this.getApplicationContext(), intent);
+//        }
+//        if (from.equals(MyRegistrationIntentService.MY_SENDER_ID)) {
+//            String message = data.getString("message");
+//            Log.d(TAG, "onMessageReceived From: " + from);
+//            Log.d(TAG, "onMessageReceived Message: " + message);
+//            Log.d(TAG, "sendNotification");
+//            sendNotification("my " + message);
+//        }
 
         if (from.startsWith("/topics/")) {
-
             // message received from some topic.
         } else {
             // normal downstream message.
         }
-
-        // [START_EXCLUDE]
-        /**
-         * Production applications would usually process the message here.
-         * Eg: - Syncing with server.
-         *     - Store message in local database.
-         *     - Update UI.
-         */
-
-        /**
-         * In some cases it may be useful to show a notification indicating to the user
-         * that a message was received.
-         */
-        sendNotification(message);
-        // [END_EXCLUDE]
     }
-    // [END receive_message]
-
     /**
      * Create and show a simple notification containing the received GCM message.
      *
      * @param message GCM message received.
      */
     private void sendNotification(String message) {
-        Log.i(TAG, "sendNotification: " + message);
         Intent intent = new Intent(this, MainActivity.class);
+        intent.setAction(Configs.DISPLAY_MESSAGE_ACTION);
+        intent.putExtra(Configs.EXTRA_MESSAGE, message);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.common_google_signin_btn_icon_light)
+                .setSmallIcon(R.drawable.com_facebook_button_icon)
                 .setContentTitle("GCM Message")
                 .setContentText(message)
                 .setAutoCancel(true)
@@ -85,6 +89,7 @@ public class MyGcmListenerService extends GcmListenerService {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+        notificationManager.notify(counts /* ID of notification */, notificationBuilder.build());
+        counts++;
     }
 }

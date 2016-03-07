@@ -14,6 +14,14 @@
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
+        <option name="myModules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/GcmSender" />
+            <option value="$PROJECT_DIR$/adjust" />
+            <option value="$PROJECT_DIR$/app" />
+          </set>
+        </option>
       </GradleProjectSettings>
     </option>
   </component>

@@ -27,8 +27,8 @@
     int SUCCESS;
 }
 -keep class com.google.android.gms.ads.identifier.AdvertisingIdClient {
-    com.google.android.gms.ads.identifier.AdvertisingIdClient$Info
-        getAdvertisingIdInfo (android.content.Context);
+      com.google.android.gms.ads.identifier.AdvertisingIdClient$Info
+     getAdvertisingIdInfo (android.content.Context);
 }
 -keep class com.google.android.gms.ads.identifier.AdvertisingIdClient$Info {
     java.lang.String getId ();
@@ -53,3 +53,23 @@ public static final ** CREATOR;
 }
 -keep class com.google.android.gms.ads.identifier.** { *; }
 -dontwarn com.tapjoy.internal.**
+
+-dontwarn com.google.android.gms.**
+-keep class com.google.android.gms.**{ *; }
+-keep interface com.google.android.gms.** { *; }
+
+-keep class com.google.android.gms.ads.** { *;
+}
+-dontwarn com.google.android.gms.ads.**
+
+
+#If you are using the InMobi SDK, add the following:
+# Preserve InMobi Ads classes
+-keep class com.inmobi.** { *;
+}
+-dontwarn com.inmobi.**
+#If you are using the Millennial Media SDK, add the following:
+# Preserve Millennial Ads classes
+-keep class com.millennialmedia.** { *;
+}
+-dontwarn com.millennialmedia.**

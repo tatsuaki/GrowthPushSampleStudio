@@ -1,9 +1,5 @@
 package grow.push.test.kin.com.mypushapp;
 
-/**
- * Created by maki on 2016/02/14.
- * MyApps.
- */
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,22 +13,25 @@ import com.google.android.gms.iid.InstanceID;
 
 import java.io.IOException;
 
-public class RegistrationIntentService extends IntentService {
+/**
+ * Created by maki on 2016/02/26.
+ * MyApps.
+ */
+public class MyRegistrationIntentService extends IntentService {
 
-    private static final String TAG = "RegistrationIntent";
-    private static final String[] TOPICS = {"global", "honda"};
-
-    public static final String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
-    public static final String REGISTRATION_COMPLETE = "registrationComplete";
-
-    public RegistrationIntentService() {
+    private static final String TAG = "RegIntentService";
+    private static final String[] TOPICS = {"global"};
+    // 452173490404
+//  public static final String MY_SENDER_ID = "317126540441";
+    public static final String MY_SENDER_ID = "470626985372";
+    public MyRegistrationIntentService() {
         super(TAG);
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
+        Log.d(TAG, "onHandleIntent");
         try {
             // [START register_for_gcm]
             // Initially this call goes out to the network to retrieve the token, subsequent calls
@@ -41,7 +40,7 @@ public class RegistrationIntentService extends IntentService {
             // See https://developers.google.com/cloud-messaging/android/start for details on this file.
             // [START get_token]
             InstanceID instanceID = InstanceID.getInstance(this);
-            String token = instanceID.getToken("452173490404", GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+            String token = instanceID.getToken(MY_SENDER_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
             // [END get_token]
             Log.i(TAG, "GCM Registration Token: " + token);
 
@@ -54,16 +53,16 @@ public class RegistrationIntentService extends IntentService {
             // You should store a boolean that indicates whether the generated token has been
             // sent to your server. If the boolean is false, send the token to your server,
             // otherwise your server should have already received the token.
-            sharedPreferences.edit().putBoolean(SENT_TOKEN_TO_SERVER, true).apply();
+            sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, true).apply();
             // [END register_for_gcm]
         } catch (Exception e) {
             Log.d(TAG, "Failed to complete token refresh", e);
             // If an exception happens while fetching the new token or updating our registration data
             // on a third-party server, this ensures that we'll attempt the update at a later time.
-            sharedPreferences.edit().putBoolean(SENT_TOKEN_TO_SERVER, false).apply();
+            sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false).apply();
         }
         // Notify UI that registration has completed, so the progress indicator can be hidden.
-        Intent registrationComplete = new Intent(REGISTRATION_COMPLETE);
+        Intent registrationComplete = new Intent(QuickstartPreferences.REGISTRATION_COMPLETE);
         LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
     }
 
@@ -76,6 +75,7 @@ public class RegistrationIntentService extends IntentService {
      * @param token The new token.
      */
     private void sendRegistrationToServer(String token) {
+        Log.i(TAG, "GCM sendRegistrationToServer Token: " + token);
         // Add custom implementation, as needed.
     }
 
@@ -87,7 +87,6 @@ public class RegistrationIntentService extends IntentService {
      */
     // [START subscribe_topics]
     private void subscribeTopics(String token) throws IOException {
-        Log.d(TAG, "subscribeTopics " + token);
         GcmPubSub pubSub = GcmPubSub.getInstance(this);
         for (String topic : TOPICS) {
             pubSub.subscribe(token, "/topics/" + topic, null);

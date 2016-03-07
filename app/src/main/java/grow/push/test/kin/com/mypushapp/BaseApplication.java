@@ -5,8 +5,6 @@ import android.app.Application;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 
-import grow.push.test.kin.com.mypushapp.helper.AdjustHelper;
-
 /**
  * Created by maki on 2016/02/20.
  * MyApps.

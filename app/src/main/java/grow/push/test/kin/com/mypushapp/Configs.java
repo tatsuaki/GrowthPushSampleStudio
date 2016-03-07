@@ -1,5 +1,8 @@
 package grow.push.test.kin.com.mypushapp;
 
+import android.content.Context;
+import android.content.Intent;
+
 /**
  * Created by maki on 2016/02/20.
  * MyApps.
@@ -22,4 +25,15 @@ public class Configs {
      * Sender ID
      * 452173490404
      */
+    /** GCMの通知メッセージを表示するインテントの定義名 */
+    static final String DISPLAY_MESSAGE_ACTION = "DISPLAY_MESSAGE";
+
+    /** メッセージのExtra定義名 */
+    static final String EXTRA_MESSAGE = "message";
+    /** UIに通知するメッセージ(直訳乙) */
+    static void displayMessage(Context context, String message) {
+        Intent intent = new Intent(DISPLAY_MESSAGE_ACTION);
+        intent.putExtra(EXTRA_MESSAGE, message);
+        context.sendBroadcast(intent);
+    }
 }

@@ -1,4 +1,4 @@
-package grow.push.test.kin.com.mypushapp.helper;
+package grow.push.test.kin.com.mypushapp;
 
 import android.app.Activity;
 import android.content.Context;
@@ -27,9 +27,9 @@ import grow.push.test.kin.com.mypushapp.BuildConfig;
  */
 public class GrowthHelper {
     private final String TAG = "GrowthHelper";
-    private final String APPLICATION_ID = "Pca3W6MVVWJIPNIe";
-    private final String CREDENTIAL_ID = "RVLksc7sZ2bWyf09ioAFAFePl9DhSgiQ";
-    private final String SENDER_ID = "452173490404";
+    private final String APPLICATION_ID = "PdpAovLfxNPYSlEj";
+    private final String CREDENTIAL_ID = "drkjpiXa2hTtvMxtz4pW0Z0EQrUC6QSs";
+    private final String SENDER_ID = "470626985372";
 
     private Context mContext = null;
     private Activity mActivity = null;
@@ -51,7 +51,9 @@ public class GrowthHelper {
 
         // GrowthPush.getInstance().requestRegistrationId("YOUR_SENDER_ID", BuildConfig.DEBUG ? Environment.development : Environment.production);
         // プロジェクトモーダル内のプロジェクト番号がGCMに必要な senderIdとなります。
-        GrowthPush.getInstance().requestRegistrationId(SENDER_ID, BuildConfig.DEBUG ? Environment.development : Environment.production);
+        GrowthPush.getInstance().requestRegistrationId(SENDER_ID, Environment.production);
+    //  GrowthPush.getInstance().requestRegistrationId(SENDER_ID, BuildConfig.DEBUG ? Environment.development : Environment.production);
+    // GrowthPush.getInstance().registerClient("token", BuildConfig.DEBUG ? Environment.development : Environment.production);
         // Launchイベントの取得
         GrowthPush.getInstance().trackEvent("Launch");
         // DeviceTagの取得
