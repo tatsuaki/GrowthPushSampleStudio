@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/0213_growpush2.iml" filepath="$PROJECT_DIR$/0213_growpush2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/0307_2_apps.iml" filepath="$PROJECT_DIR$/0307_2_apps.iml" />
       <module fileurl="file://$PROJECT_DIR$/GcmSender/GcmSender.iml" filepath="$PROJECT_DIR$/GcmSender/GcmSender.iml" />
       <module fileurl="file://$PROJECT_DIR$/adjust/adjust.iml" filepath="$PROJECT_DIR$/adjust/adjust.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
