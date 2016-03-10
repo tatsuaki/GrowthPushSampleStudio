@@ -1,9 +1,14 @@
 package grow.push.test.kin.com.mypushapp;
 
+import android.app.Activity;
 import android.app.Application;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
+import com.test.kin.unity.uni.UnityPlayerActivity;
 
 /**
  * Created by maki on 2016/02/20.

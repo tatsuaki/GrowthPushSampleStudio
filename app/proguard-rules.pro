@@ -15,7 +15,7 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
-
+-dontwarn com.google.**
 ## adjust
 -keep class com.adjust.sdk.plugin.MacAddressUtil {
     java.lang.String getMacAddress(android.content.Context);
@@ -27,7 +27,7 @@
     int SUCCESS;
 }
 -keep class com.google.android.gms.ads.identifier.AdvertisingIdClient {
-      com.google.android.gms.ads.identifier.AdvertisingIdClient$Info
+     com.google.android.gms.ads.identifier.AdvertisingIdClient$Info
      getAdvertisingIdInfo (android.content.Context);
 }
 -keep class com.google.android.gms.ads.identifier.AdvertisingIdClient$Info {

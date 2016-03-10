@@ -40,12 +40,10 @@ import com.tapjoy.TJPlacement;
 import com.tapjoy.TJPlacementListener;
 import com.tapjoy.Tapjoy;
 import com.tapjoy.TapjoyConnectFlag;
-import com.test.kin.unity.uni.UnityPlayerActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -677,7 +675,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             mHelper.getAllPurchases();
         } else if (view == mUnityButton) {
             Log.d(TAG, "Unity");
-            Intent intent = new Intent(this, UnityPlayerActivity.class);
+            Intent intent = new Intent(getApplicationContext(), UnityPluginActivity.class);
+        //  intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
         }
     }
