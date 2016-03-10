@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
@@ -17,7 +16,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.facebook.AccessTokenTracker;
@@ -28,13 +26,11 @@ import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.google.android.gcm.GCMRegistrar;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.growthbeat.Growthbeat;
 import com.growthbeat.analytics.GrowthAnalytics;
-import com.growthpush.GrowthPush;
 import com.tapjoy.TJActionRequest;
 import com.tapjoy.TJConnectListener;
 import com.tapjoy.TJEarnedCurrencyListener;
@@ -44,6 +40,7 @@ import com.tapjoy.TJPlacement;
 import com.tapjoy.TJPlacementListener;
 import com.tapjoy.Tapjoy;
 import com.tapjoy.TapjoyConnectFlag;
+import com.test.kin.unity.uni.UnityPlayerActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     public Button tapJoy2 = null;
     public Button tapJoy3 = null;
     public Button mconsumeButton = null;
+    public Button mUnityButton = null;
 
     // (arbitrary) request code for the purchase flow
     static final int RC_REQUEST = 10001;
@@ -251,6 +249,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         tapJoy2 = (Button) findViewById(R.id.tapJoy2);
         tapJoy3 = (Button) findViewById(R.id.tapJoy3);
         mconsumeButton = (Button) findViewById(R.id.consumeButton);
+        mUnityButton = (Button) findViewById(R.id.unityButton);
 
         button1.setOnClickListener(this);
         button2.setOnClickListener(this);
@@ -261,6 +260,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         tapJoy2.setOnClickListener(this);
         tapJoy3.setOnClickListener(this);
         mconsumeButton.setOnClickListener(this);
+        mUnityButton.setOnClickListener(this);
     }
 
     IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
@@ -675,6 +675,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             Log.d(TAG, "消費");
             /** 全消費 */
             mHelper.getAllPurchases();
+        } else if (view == mUnityButton) {
+            Log.d(TAG, "Unity");
+            Intent intent = new Intent(this, UnityPlayerActivity.class);
+            startActivity(intent);
         }
     }
 }

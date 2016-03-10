@@ -1,1 +1,1 @@
-include ':app', ':GcmSender', ':adjust'
+include ':app', ':GcmSender', ':adjust', ':unity'

@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/GcmSender/GcmSender.iml" filepath="$PROJECT_DIR$/GcmSender/GcmSender.iml" />
       <module fileurl="file://$PROJECT_DIR$/adjust/adjust.iml" filepath="$PROJECT_DIR$/adjust/adjust.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/unity/unity.iml" filepath="$PROJECT_DIR$/unity/unity.iml" />
     </modules>
   </component>
 </project>
