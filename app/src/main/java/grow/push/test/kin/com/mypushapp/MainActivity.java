@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
@@ -26,6 +27,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.android.gcm.GCMRegistrar;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -44,10 +46,12 @@ import com.tapjoy.TapjoyConnectFlag;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Hashtable;
 
 import grow.push.test.kin.com.mypushapp.BillingUtil.IabHelper;
@@ -92,8 +96,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        createGCM();
-     //   getRegistrationId();
+        createGCM();
+        getRegistrationId();
         //初期化
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_main);
@@ -104,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             public void onIabSetupFinished(IabResult result) {
                 Log.d(TAG, "Setup finished.");
                 if (!result.isSuccess()) {
-                    complain("Problem setting up in-app billing: " + result);
+                //  complain("Problem setting up in-app billing: " + result);
                     return;
                 }
                 if (mHelper == null) {
@@ -119,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         registerReceiver(mHandleMessageReceiver, new IntentFilter(Configs.DISPLAY_MESSAGE_ACTION));
         Intent intent = new Intent(this, MyRegistrationIntentService.class);
         startService(intent);
-    //    connectToTapjoy();
+        connectToTapjoy();
         settingView();
 
         BaseApplication application = (BaseApplication) getApplication();
@@ -128,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         //ログイン後のコールバック設定
         callbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
-//    //  LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {...});
+//      LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {...});
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -196,37 +200,36 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             alert.show();
         }
     }
-//    private void getRegistrationId() {
-//        new AsyncTask<Void, Void, Void>() {
-//            @Override
-//            protected Void doInBackground(Void... params) {
-//                if (gcm == null) {
-//                    gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
-//                }
-//                try {
-//                    regId = gcm.register(SENDER_ID);
-//                    Log.v("GCM", "regId is " + regId);
-//                } catch (IOException e) {
-//                    Log.e("GCM", "error " + e.getMessage());
-//                }
-//                return null;
-//            }
-//        }.execute();
-//    }
-//    public void createGCM() {
-//        // check if it's right manifest.
-//    //    GCMRegistrar.checkDevice(this);
-//   //   GCMRegistrar.checkManifest(this);
-//        final String regId = GCMRegistrar.getRegistrationId(this);
-//        Log.e(TAG, "regId=" + regId);
-//        if (regId.equals("")) {
-//            Log.e(TAG, "GCMIntentService.onRegisteredがコールされる。");
-//            // GCMIntentService.onRegisteredがコールされる。
-//            GCMRegistrar.register(this, "317126540441");
-//        } else {
-//            Log.v(TAG, "Already exists " + regId);
-//        }
-//    }
+    private void getRegistrationId() {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                if (gcm == null) {
+                    gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
+                }
+                try {
+                    regId = gcm.register(SENDER_ID);
+                    Log.v("GCM", "regId is " + regId);
+                } catch (IOException e) {
+                    Log.e("GCM", "error " + e.getMessage());
+                }
+                return null;
+            }
+        }.execute();
+    }
+    public void createGCM() {
+    //  GCMRegistrar.checkDevice(this);
+    //  GCMRegistrar.checkManifest(this);
+        final String regId = GCMRegistrar.getRegistrationId(this);
+        Log.e(TAG, "regId=" + regId);
+        if (regId.equals("")) {
+            Log.e(TAG, "GCMIntentService.onRegisteredがコールされる。");
+            // GCMIntentService.onRegisteredがコールされる。
+            GCMRegistrar.register(this, "317126540441");
+        } else {
+            Log.v(TAG, "Already exists " + regId);
+        }
+    }
 // ブロードキャストレシーバーの登録
     private final BroadcastReceiver mHandleMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -234,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             // 通知を受けた内容を画面のテキストビューに表示
             String newMessage = intent.getExtras().getString(Configs.EXTRA_MESSAGE);
             Toast.makeText(getApplicationContext(), newMessage, Toast.LENGTH_SHORT).show();
-        //    mDisplay.append(newMessage + "\n");
+        //  mDisplay.append(newMessage + "\n");
         }
     };
     private void settingView() {
@@ -264,9 +267,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
         public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
             Log.d(TAG, "Query inventory finished.");
-            // Have we been disposed of in the meantime? If so, quit.
             if (mHelper == null) return;
-            // Is it a failure?
             if (result.isFailure()) {
                 complain("Failed to query inventory: " + result);
                 return;
@@ -329,24 +330,27 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
         String purchaseData = data.getStringExtra("INAPP_PURCHASE_DATA");
         String dataSignature = data.getStringExtra("INAPP_DATA_SIGNATURE");
-        try {
-            JSONObject purchaseDataJson = new JSONObject(purchaseData);
-            String productId = purchaseDataJson.getString("productId");
-            // getSkuDetails
-            ArrayList<String> skuList = new ArrayList<>();
-            skuList.add(productId);
-            Bundle querySkus = new Bundle();
-            querySkus.putStringArrayList("ITEM_ID_LIST", skuList);
-            Bundle skuDetails = mHelper.mService.getSkuDetails(3, getPackageName(), "inapp", querySkus);
-            ArrayList<String> responseList = skuDetails.getStringArrayList("DETAILS_LIST");
-            Tapjoy.trackPurchase(responseList.get(0), purchaseData, dataSignature, null);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        if (null != purchaseData) {
+            try {
+                JSONObject purchaseDataJson = new JSONObject(purchaseData);
+                String productId = purchaseDataJson.getString("productId");
+                // getSkuDetails
+                ArrayList<String> skuList = new ArrayList<>();
+                skuList.add(productId);
+                Bundle querySkus = new Bundle();
+                querySkus.putStringArrayList("ITEM_ID_LIST", skuList);
+                Bundle skuDetails = mHelper.mService.getSkuDetails(3, getPackageName(), "inapp", querySkus);
+                ArrayList<String> responseList = skuDetails.getStringArrayList("DETAILS_LIST");
+                Tapjoy.trackPurchase(responseList.get(0), purchaseData, dataSignature, null);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
+
         /* 課金処理 */
         if (!mHelper.handleActivityResult(requestCode, resultCode, data)) {
             super.onActivityResult(requestCode, resultCode, data);
@@ -370,7 +374,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     void complain(String message) {
         Log.e(TAG, "**** TrivialDrive Error: " + message);
-        alert("Error: " + message);
+    //  alert("Error: " + message);
     }
 
     void alert(String message) {
@@ -564,8 +568,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         Log.e("Tapjoi", "connect call failed");
     }
 
-
-
     public void onStart() {
         super.onStart();
         Growthbeat.getInstance().start();
@@ -612,7 +614,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         } else if (view == button2) {
             mGrowthHelper.GrowthSendTag("purchase", getNowDate());
             mGrowthHelper.GrowPurchase(345, "categorys", "itemID");
-
+            HashMap<String, String> map = new HashMap<String, String>();
+            map.put("Click", "Button2");
+            GrowthAnalytics.getInstance().track("BUTTON2", map);
             AdjustHelper.sendEvent(AdjustHelper.BUTTON2);
 
             // Get tracker.

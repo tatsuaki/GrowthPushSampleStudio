@@ -37,7 +37,6 @@ public class GrowthHelper {
     public GrowthHelper(Activity acticity, Context context) {
         mActivity = acticity;
         mContext = context;
-
         GrowthSetting();
     }
 
@@ -61,14 +60,14 @@ public class GrowthHelper {
 
         // Growthbeatの初期化処理の後に、Growth Linkの初期化処理を追加してください。
         // public void initialize(Context context, String applicationId, String credentialId)
-        GrowthLink.getInstance().initialize(mContext, APPLICATION_ID, CREDENTIAL_ID);
+    //    GrowthLink.getInstance().initialize(mContext, APPLICATION_ID, CREDENTIAL_ID);
         // IntentFilterを設定したActivityのonCreateで、handleOpenUrlメソッドを呼び出してください。
-        GrowthLink.getInstance().handleOpenUrl(mActivity.getIntent().getData());
+    //    GrowthLink.getInstance().handleOpenUrl(mActivity.getIntent().getData());
         String ana = GrowthAnalytics.getInstance().getCredentialId();
         Log.d(TAG, "GrowthAnalytics.getInstance().getCredentialId() = " + ana);
 
         GrowthAnalytics.getInstance().setBasicTags();
-        GrowthAnalytics.getInstance().open();
+    //  GrowthAnalytics.getInstance().open();
         // ディープリンクアクションの実装
         List<IntentHandler> intentHandlers = new ArrayList<IntentHandler>();
         intentHandlers.add(new UrlIntentHandler(GrowthbeatCore.getInstance().getContext()));
@@ -89,8 +88,8 @@ public class GrowthHelper {
     public void  GrowthTrackEvent(String key, String value) {
         Log.d(TAG, "GrowthTrackEvent key = " + key + " values = " + value);
         GrowthPush.getInstance().trackEvent(key, value);
-        String ids = GrowthLink.getInstance().getCredentialId();
-        Log.d(TAG, "GrowthLink.getInstance().getCredentialId() = " + ids);
+//        String ids = GrowthLink.getInstance().getCredentialId();
+//        Log.d(TAG, "GrowthLink.getInstance().getCredentialId() = " + ids);
     }
 
     public void GrowthSendTag(String key, String value) {

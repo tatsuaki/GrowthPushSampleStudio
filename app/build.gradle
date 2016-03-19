@@ -15,14 +15,15 @@ android {
         applicationId "grow.push.test.kin.com.mypushapp"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 15
-        versionName "1.5.0"
+        versionCode 17
+        versionName "1.7.0"
+        signingConfig signingConfigs.config
     }
     buildTypes {
         release {
             debuggable false
             minifyEnabled false
-        //  shrinkResources true
+            //  shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
         }
@@ -31,6 +32,8 @@ android {
             minifyEnabled false
             applicationIdSuffix '.debug'
         }
+    }
+    productFlavors {
     }
 }
 
@@ -43,7 +46,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-ads:8.4.0'
     compile 'com.google.android.gms:play-services-analytics:8.4.0'
     compile 'com.growthbeat:growthbeat-android:1.2.6@aar'
-    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+    compile 'com.facebook.android:facebook-android-sdk:4.+'
     compile files('libs/tapjoyconnectlibrary.jar')
     compile project(':adjust')
     compile project(':unity')
