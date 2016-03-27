@@ -2,11 +2,20 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
-        config {
-            keyAlias 'keys'
-            keyPassword 'makimakimaki3'
-            storeFile file('C:/Users/maki/Desktop/AndroidStudio_work/keyStores/keyStore.jks')
-            storePassword 'makimakimaki3'
+        keyconfig {
+            try {
+                File keystorePropertiesFile = file('../keystore/release.properties')
+                storeFile file('../keystore/keyStore')
+                Properties properties = new Properties()
+                keystorePropertiesFile.withInputStream {
+                    properties.load(it)
+                }
+                keyAlias properties.getProperty('KEY_ALIAS')
+                keyPassword properties.getProperty('KEY_PASSWORD')
+                storePassword properties.getProperty('KEYSTORE_PASSWORD')
+            } catch (e) {
+                throw new InvalidUserDataException("You should define KEYSTORE_PASSWORD and KEY_PASSWORD in release.properties.")
+            }
         }
     }
     compileSdkVersion 23
@@ -17,7 +26,7 @@ android {
         targetSdkVersion 23
         versionCode 17
         versionName "1.7.0"
-        signingConfig signingConfigs.config
+        signingConfig signingConfigs.keyconfig
     }
     buildTypes {
         release {
@@ -25,7 +34,7 @@ android {
             minifyEnabled false
             //  shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.config
+            signingConfig signingConfigs.keyconfig
         }
         debug {
             debuggable true
